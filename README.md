@@ -10,4 +10,5 @@ This repository contains public reference examples and architectural patterns fo
 
 ## 📚 Available Recipes
 
-- **[01-ollama-gemma](01-ollama-gemma/)**: Complete local execution using the Ollama adapter and the Gemma model. Demonstrates zero-network-dependency orchestration.
+- **[01-ollama-gemma](01-ollama-gemma/)**: Synchronous execution using the Ollama adapter and the Gemma model. Demonstrates zero-network-dependency architecture.
+- **[02-swarm-sandbox](02-swarm-sandbox/)**: Advanced multi-agent cluster (`Broker`), isolated local code execution (`GitWorktree`), and real-time terminal user input processing.
