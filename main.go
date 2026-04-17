@@ -52,12 +52,13 @@ func main() {
 	// ==========================================
 	// Agent A: The Code Explorer (Researcher)
 	// ==========================================
+	researcher.Router().AddTransition("WAIT", "LOOP", "WAIT")
 	researcher.Router().AddState("WAIT", func(c context.Context, rctx *router.Context) (string, error) {
 		msgVal, ok := rctx.GetVar("go-brain:last_message")
 		if !ok || msgVal == nil {
 			// If no message is available, the agent blocks until Swarm preempts it
 			<-c.Done()
-			return "", nil
+			return "LOOP", nil
 		}
 
 		msg := msgVal.(swarm.Message)
@@ -94,30 +95,23 @@ func main() {
 			rctx.SetVar("go-brain:last_message", nil)
 		}
 		
-		return "", nil // Halt pipeline
+		return "LOOP", nil // Wait for next message
 	})
 
 	go func() {
 		defer wg.Done()
-		for {
-			// A reactive loop representing a persistent fast process
-			_, err := researcher.Run(context.Background(), nil)
-			if err != nil && err.Error() == "context canceled" {
-				// Re-loop safely if triggered by the Swarm
-				continue
-			}
-			break
-		}
+		researcher.Run(context.Background(), nil)
 	}()
 
 	// ==========================================
 	// Agent B: The Reviewer (Analyst)
 	// ==========================================
+	analyst.Router().AddTransition("WAIT", "LOOP", "WAIT")
 	analyst.Router().AddState("WAIT", func(c context.Context, rctx *router.Context) (string, error) {
 		msgVal, ok := rctx.GetVar("go-brain:last_message")
 		if !ok || msgVal == nil {
 			<-c.Done()
-			return "", nil
+			return "LOOP", nil
 		}
 
 		msg := msgVal.(swarm.Message)
@@ -147,18 +141,12 @@ func main() {
 			os.Exit(0)
 		}
 		
-		return "", nil
+		return "LOOP", nil
 	})
 
 	go func() {
 		defer wg.Done()
-		for {
-			_, err := analyst.Run(context.Background(), nil)
-			if err != nil && err.Error() == "context canceled" {
-				continue
-			}
-			break
-		}
+		analyst.Run(context.Background(), nil)
 	}()
 
 	// =========================================================================
