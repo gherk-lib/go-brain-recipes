@@ -34,7 +34,8 @@ func main() {
 	currentDir, _ := os.Getwd()
 	fmt.Printf("📦 Mounting GitSandbox in: %s\n", currentDir)
 	
-	worktree, err := sandbox.NewWorktree(currentDir, "swarm-research-branch")
+	branchName := fmt.Sprintf("swarm-research-%d", time.Now().UnixNano())
+	worktree, err := sandbox.NewWorktree(currentDir, branchName)
 	if err != nil {
 		log.Fatalf("Failed to mount sandbox. Are you running inside a git repo? %v", err)
 	}
