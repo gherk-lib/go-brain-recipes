@@ -62,7 +62,12 @@ func main() {
 			return "LOOP", nil
 		}
 
-		msg := msgVal.(swarm.Message)
+		// The FSM Engine performs a JSON Deep-Copy for thread-safety, 
+		// so we extract our struct dynamically from the raw map interface.
+		msgBytes, _ := json.Marshal(msgVal)
+		var msg swarm.Message
+		json.Unmarshal(msgBytes, &msg)
+
 		if msg.To == "Researcher" && msg.Type == "USER_PROMPT" {
 			fmt.Printf("\n[Researcher 🔍]: Analyzing the user's objective: '%s'\n", msg.Content)
 			fmt.Printf("[Researcher 🛠️ ]: Executing commands via GitSandbox enclosure...\n")
@@ -115,7 +120,10 @@ func main() {
 			return "LOOP", nil
 		}
 
-		msg := msgVal.(swarm.Message)
+		msgBytes, _ := json.Marshal(msgVal)
+		var msg swarm.Message
+		json.Unmarshal(msgBytes, &msg)
+
 		if msg.To == "Analyst" && msg.Type == "RAW_FINDINGS" {
 			fmt.Printf("\n[Analyst 🧐]: Received structured findings. Formulating strict response...\n")
 
